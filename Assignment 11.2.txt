@@ -1,0 +1,42 @@
+--CREATE TABLE IN MYSQL
+
+CREATE TABLE employee (id int,name varchar(20),tech varchar(20));
+
+INSERT INTO employee values (1,'Adi','Big Data');
+INSERT INTO employee values (2,'Rahul','Java');
+INSERT INTO employee values (3,'Ash','.net');
+
+--LOAD DATA FROM MYSQL TO HIVE
+
+sqoop import \
+--connect jdbc:mysql://localhost/acadgild  \
+--username root \
+--password cloudera \
+--table employee \
+--split-by id \
+--columns id,name \
+--fields-terminated-by "," \
+--hive-import \
+--create-hive-table \
+--hive-table acadgild.employees \
+--m 1
+
+--Inserting New values
+INSERT INTO employee values (4,'Ben','C#');
+INSERT INTO employee values (5,'Ken','net');
+
+--INCREMENTAL LOAD IN HIVE USING SQOOP
+
+sqoop import \
+--connect jdbc:mysql://localhost/acadgild \
+--username root \
+--password cloudera \
+--table employee \
+--hive-database acadgild \
+--hive-table employees \
+--check-column id \
+--last-value 3 \
+--incremental append \
+--fields-terminated-by ',' \
+--target-dir hdfs://quickstart.cloudera:8020/user/hive/warehouse/acadgild.db/employees \
+--m 1
